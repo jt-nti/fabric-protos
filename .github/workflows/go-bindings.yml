@@ -2,10 +2,10 @@ name: Go Bindings
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, 0.1.x, 0.2.x ]
     tags: [ v** ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, 0.1.x, 0.2.x ]
   workflow_dispatch:
 
 jobs:
@@ -31,6 +31,7 @@ jobs:
       uses: actions/checkout@v3
       with:
         repository: ${{ matrix.apiver == 'apiv1' && 'hyperledger/fabric-protos-go' || 'hyperledger/fabric-protos-go-apiv2' }}
+        ref: ${{ github.ref }}
         path: publish-${{ matrix.apiver }}
 
     - name: Cache apiv1 build dependencies
@@ -117,7 +118,7 @@ jobs:
     - name: Push GitHub publish commit
       run: |
         git push origin
-      if: github.ref == 'refs/heads/main'
+      if: contains(fromJson('["refs/heads/main", "refs/heads/0.1.x", "refs/heads/0.2.x"]'), github.ref)
       working-directory: publish-${{ matrix.apiver }}
 
     - name: Tag commit
